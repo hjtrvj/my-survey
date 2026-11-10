@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Nanum+Myeongjo:wght@700&display=swap');
+
+:root {
+  --pink: #e99ab5;
+  --pink-dark: #b85f82;
+  --ink: #55434b;
+  --muted: #a18b94;
+  --paper: #fffdfd;
+  --line: #f3dce5;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; min-height: 100vh; color: var(--ink);
+  background: radial-gradient(circle at 12% 12%, #ffeaf1 0, transparent 30%),
+              radial-gradient(circle at 90% 85%, #f8eaf4 0, transparent 28%), #fff7fa;
+  font-family: "Gowun Dodum", sans-serif;
+  display: grid; place-items: center; padding: 28px 16px;
+}
+.shell { width: min(100%, 510px); }
+.top-note { text-align: center; color: var(--pink-dark); letter-spacing: 2px; font-size: 12px; margin-bottom: 14px; }
+.card {
+  position: relative; overflow: hidden; background: rgba(255,253,253,.96);
+  border: 1px solid var(--line); border-radius: 27px; padding: 28px 25px 30px;
+  box-shadow: 0 18px 55px rgba(180, 112, 139, .12); min-height: 480px;
+}
+.progress { height: 5px; background: #f8edf1; border-radius: 10px; overflow: hidden; margin-bottom: 28px; }
+.progress span { display: block; width: 0; height: 100%; background: var(--pink); border-radius: inherit; transition: width .3s ease; }
+.eyebrow { color: var(--pink-dark); font-size: 12px; letter-spacing: 1px; margin-bottom: 12px; }
+h1 { font-family: "Nanum Myeongjo", serif; font-size: clamp(25px, 6vw, 32px); line-height: 1.45; margin: 0 0 12px; font-weight: 700; }
+.subtitle { color: var(--muted); font-size: 14px; line-height: 1.8; margin: 0 0 25px; }
+.emoji { font-size: 35px; margin-bottom: 12px; }
+.choices { display: grid; gap: 10px; }
+.choice {
+  width: 100%; border: 1px solid var(--line); background: #fff;
+  border-radius: 15px; padding: 14px 15px; color: var(--ink);
+  font: inherit; font-size: 15px; text-align: left; cursor: pointer;
+  transition: border-color .18s, background .18s, transform .18s;
+}
+.choice:hover { border-color: var(--pink); background: #fff8fb; transform: translateY(-1px); }
+.choice:focus-visible, .primary:focus-visible, textarea:focus-visible { outline: 3px solid #f4bfd0; outline-offset: 2px; }
+.choice .small { color: var(--muted); font-size: 12px; display: block; margin-top: 3px; }
+.choice.selected { border-color: var(--pink-dark); background: #fff1f6; }
+.actions { display: flex; gap: 9px; margin-top: 24px; }
+.primary, .secondary {
+  border: 0; border-radius: 14px; padding: 13px 18px; font: inherit; cursor: pointer;
+}
+.primary { background: var(--pink); color: white; flex: 1; box-shadow: 0 5px 12px #e99ab533; }
+.primary:hover { background: #df86a6; }
+.secondary { background: #f8f0f3; color: var(--muted); }
+textarea {
+  width: 100%; min-height: 95px; resize: vertical; border: 1px solid var(--line);
+  border-radius: 14px; padding: 13px; font: inherit; color: var(--ink); background: white;
+}
+.hint { color: var(--muted); font-size: 12px; line-height: 1.7; margin-top: 10px; }
+.time-wrap { position: relative; min-height: 255px; }
+.dodge {
+  position: relative; z-index: 2; display: inline-block; width: auto;
+  background: #f6f1f3; color: #8f7d85; border-style: dashed;
+  transition: transform .18s ease;
+}
+.dodge-note { color: var(--muted); font-size: 12px; margin: 10px 2px 0; min-height: 20px; }
+.summary { background: #fff7fa; border: 1px dashed #edc5d4; padding: 16px; border-radius: 16px; line-height: 1.9; white-space: pre-line; }
+footer { text-align: center; color: #b7a4ac; font-size: 11px; letter-spacing: 1px; margin-top: 17px; }
+footer span { color: var(--pink); }
+@media (max-width: 420px) { .card { padding: 23px 18px 25px; min-height: 450px; } }
