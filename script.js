@@ -7,29 +7,29 @@ const CONFIG = {
   // Google Apps Script 웹 앱 배포 URL. 비워 두면 이 기기에서 결과를 복사하는 방식으로 동작합니다.
   APPS_SCRIPT_URL: "",
   // '오늘' 대신 다른 표현으로 바꾸고 싶으면 이 문구를 수정하세요.
-  introTitle: "잠깐만 도와줄래? 🎀",
-  introText: "간단한 질문 몇 개만!<br>너무 고민하지 말고 마음 가는 대로 골라줘 ㅎㅎ",
-  dodgeLimit: 3 // 세 번 도망간 뒤에는 '오늘은 어려워'도 선택할 수 있습니다.
+  introTitle: "너에 대해 알아보는 중...! 🍓",
+  introText: "잠깐만! 질문 몇 개만 대답해 줘 ㅎㅎ<br>별거 아니니까 부담 갖지 말고! ♡",
+  dodgeLimit: 3 // 비밀 동작: 세 번 이동한 뒤 네 번째 클릭에 선택됩니다.
 };
 
 const QUESTIONS = {
   dessert: {
     eyebrow: "QUESTION 01",
-    title: "요즘 가장 당기는 디저트는?",
+    title: "갑자기 궁금한데, 너는 어떤 디저트가 제일 좋아?",
     subtitle: "요즘 취향 기준으로 골라줘!",
-    options: ["🍓 과일이 들어간 상큼한 맛", "🍫 초콜릿처럼 진하고 달달한 맛", "🧀 치즈처럼 꾸덕하고 고소한 맛", "🍦 부드럽고 가벼운 맛", "🤍 딱히 가리는 건 없어"]
+    options: ["🍰 생크림 케이크", "🍫 초코 케이크", "🧀 치즈 케이크", "🍓 과일 케이크", "🤍 사실 다 좋아!"]
   },
   texture: {
     eyebrow: "QUESTION 02",
-    title: "둘 중 더 끌리는 쪽은?",
+    title: "그럼 달달한 거 중에서는?",
     subtitle: "그냥 취향대로 골라 보면 돼.",
-    options: ["과일이 듬뿍 들어간 쪽 🍓", "크림이 부드럽고 풍부한 쪽 ☁️", "초콜릿이나 장식이 포인트인 쪽 🍫", "둘 다 좋아!"]
+    options: ["많이 달달한 맛 🍭", "적당히 달콤한 맛 ♡", "상큼한 과일 맛 🍋", "꾸덕하고 진한 맛 🍫"]
   },
   time: {
     eyebrow: "QUESTION 03",
-    title: "오늘 잠깐 시간이 생긴다면?",
-    subtitle: "가능한 시간대를 골라줘. 어려우면 마지막 선택지도 괜찮아!",
-    options: ["오후 5시 이전", "오후 5시~6시", "오후 6시~7시", "오후 7시 이후"]
+    title: "오늘 혹시 잠깐 시간 있어?",
+    subtitle: "가능한 시간대를 하나 골라줘!",
+    options: ["오후 7시 ~ 8시 🌷", "오후 8시 ~ 9시 🍰", "오후 9시 ~ 9시 30분 🌙"]
   }
 };
 
@@ -47,8 +47,8 @@ function escapeHtml(value) {
 function renderIntro() {
   setProgress(0);
   app.innerHTML = `
-    <div class="emoji">✉️</div>
-    <div class="eyebrow">A LITTLE SURVEY</div>
+    <div class="eyebrow">A LITTLE SECRET PROJECT ♡</div>
+    <img class="hero-image" src="assets/cake-hero.png" alt="귀여운 딸기 생크림 케이크">
     <h1>${CONFIG.introTitle}</h1>
     <p class="subtitle">${CONFIG.introText}</p>
     <button class="primary" id="startBtn">시작하기 <span aria-hidden="true">→</span></button>
@@ -87,63 +87,63 @@ function renderQuestion(key) {
 function renderTime() {
   setProgress(3);
   app.innerHTML = `
+    <div class="emoji">⏰</div>
     <div class="eyebrow">${QUESTIONS.time.eyebrow}</div>
     <h1>${QUESTIONS.time.title}</h1>
     <p class="subtitle">${QUESTIONS.time.subtitle}</p>
     <div class="time-wrap">
       <div class="choices" id="timeChoices">
         ${QUESTIONS.time.options.map(o => `<button class="choice" data-time="${escapeHtml(o)}">${o}</button>`).join("")}
-        <button class="choice dodge" id="dodgeBtn">오늘은 못 만날 것 같아 🥺</button>
+        <button class="choice dodge" id="dodgeBtn" type="button">오늘은 어려워 🥹</button>
       </div>
-      <p class="dodge-note" id="dodgeNote">마지막 선택지도 편하게 골라도 돼 :)</p>
     </div>
     <div class="actions"><button class="secondary" id="backBtn">이전</button></div>
   `;
   app.querySelectorAll("[data-time]").forEach(btn => btn.addEventListener("click", () => {
-    state.answers.time = btn.dataset.time; state.step = 4; renderNote();
+    state.answers.time = btn.dataset.time;
+    state.step = 4;
+    renderReaction();
   }));
   document.getElementById("backBtn").addEventListener("click", () => { state.step = 2; renderQuestion("texture"); });
-  const dodge = document.getElementById("dodgeBtn");
-  dodge.addEventListener("pointerenter", moveDodge);
-  dodge.addEventListener("touchstart", moveDodge, { passive: true });
-  dodge.addEventListener("click", () => {
-    // 도망 기능은 장난 요소이며, 몇 번 뒤에는 실제 선택이 가능하도록 합니다.
-    if (state.dodgeCount < CONFIG.dodgeLimit) {
-      moveDodge();
-    } else {
-      state.answers.time = "오늘은 만나기 어려워";
-      state.step = 4; renderNote();
-    }
-  });
+  document.getElementById("dodgeBtn").addEventListener("click", handleDodgeClick);
 }
-function moveDodge() {
+function handleDodgeClick() {
   const btn = document.getElementById("dodgeBtn");
-  const note = document.getElementById("dodgeNote");
-  if (!btn || state.dodgeCount >= CONFIG.dodgeLimit) return;
-  state.dodgeCount += 1;
-  // 버튼이 화면 밖으로 나가지 않도록 작게 좌우로 이동합니다.
-  const x = state.dodgeCount % 2 ? 42 : -42;
-  const y = state.dodgeCount % 2 ? 5 : -5;
-  btn.style.transform = `translate(${x}px, ${y}px)`;
-  if (note) note.textContent = ["앗, 잡기 쉽지 않네ㅋㅋ", "한 번 더 도망갔어! 😳", "이제는 선택할 수 있어. 편하게 골라줘!"][state.dodgeCount - 1];
-  if (state.dodgeCount >= CONFIG.dodgeLimit) {
-    btn.style.transform = "none";
-    btn.style.borderStyle = "solid";
-    btn.style.borderColor = "#e99ab5";
-    btn.style.background = "#fff1f6";
-    btn.style.color = "#b85f82";
-    btn.textContent = "오늘은 만나기 어려워";
-    if (note) note.textContent = "이제 이 선택지도 누를 수 있어!";
+  if (!btn) return;
+  if (state.dodgeCount < CONFIG.dodgeLimit) {
+    state.dodgeCount += 1;
+    const positions = ["translate(48px, -9px)", "translate(-38px, 13px)", "translate(30px, 7px)"];
+    btn.style.transform = positions[state.dodgeCount - 1];
+    return;
   }
+  state.answers.time = "오늘은 만나기 어려워";
+  state.step = 4;
+  renderNote();
+}
+function renderReaction() {
+  setProgress(3);
+  app.innerHTML = `
+    <div class="reaction-screen">
+      <div class="reaction-emoji">🥹</div>
+      <div class="eyebrow">WAIT A SECOND</div>
+      <h1>잠시만.. 좋다고?? 😭</h1>
+      <p class="subtitle">난 네가 싫다고 할 줄 알았어 ...</p>
+      <button class="primary reaction-button" id="reactionNext">응응응</button>
+    </div>
+  `;
+  document.getElementById("reactionNext").addEventListener("click", () => {
+    state.step = 4;
+    renderNote();
+  });
 }
 function renderNote() {
   setProgress(4);
   app.innerHTML = `
-    <div class="emoji">💌</div>
-    <div class="eyebrow">ONE LAST THING</div>
-    <h1>마지막으로 하나만!</h1>
-    <p class="subtitle">요즘 먹고 싶은 거나 하고 싶은 말 있으면 적어줘. (선택사항)</p>
-    <textarea id="noteInput" placeholder="편하게 적어줘 ㅎㅎ">${escapeHtml(state.answers.note)}</textarea>
+    <div class="emoji">🎀</div>
+    <div class="eyebrow">ONE LAST QUESTION</div>
+    <h1>마지막으로 하나만 더!</h1>
+    <p class="subtitle">요즘 먹고 싶은 거 있어? 아니면 생각나는 거 아무거나! (선택사항)</p>
+    <textarea id="noteInput" placeholder="예) 딸기 케이크가 먹고 싶어! ㅎㅎ">${escapeHtml(state.answers.note)}</textarea>
     <p class="hint">안 적고 넘어가도 괜찮아.</p>
     <div class="actions"><button class="secondary" id="backBtn">이전</button><button class="primary" id="submitBtn">답변 보내기 ♡</button></div>
   `;
